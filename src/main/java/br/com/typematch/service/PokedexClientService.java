@@ -4,6 +4,8 @@ import br.com.typematch.dto.PokemonDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -22,8 +24,9 @@ public class PokedexClientService {
         String url = String.format("%s/%s", baseUrl, idOrName);
         try {
             return restTemplate.getForObject(url, PokemonDTO.class);
-        } catch (HttpClientErrorException.NotFound nf) {
-            return null;
+        } catch (HttpServerErrorException | ResourceAccessException ex) {
+            throw new IllegalStateException("Falha ao acessar Pokedex API (gym-leader).", ex);
         }
+
     }
 }

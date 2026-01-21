@@ -3,26 +3,34 @@ package br.com.typematch.service;
 import br.com.typematch.dto.ComparisonResultDTO;
 import br.com.typematch.dto.PokemonDTO;
 import br.com.typematch.dto.StatsDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Service
 public class ComparisonService {
 
-    private final PokedexClientService pokedexClient;
+    private final PokedexClientService pokedexClientService;
     private final DynamicTypeEffectService typeService;
 
-    public ComparisonService(PokedexClientService pokedexClient, DynamicTypeEffectService typeService) {
-        this.pokedexClient = pokedexClient;
+    @Value("${comparison.weights.type:0.6}")
+    private double typeWeight;
+
+    @Value("${comparison.weights.stats:0.4}")
+    private double statsWeight;
+
+    public ComparisonService(PokedexClientService pokedexClientService, DynamicTypeEffectService typeService) {
+        this.pokedexClientService = pokedexClientService;
         this.typeService = typeService;
     }
 
     public ComparisonResultDTO compare(String idOrNameA, String idOrNameB) {
-        PokemonDTO a = pokedexClient.getPokemon(idOrNameA);
-        PokemonDTO b = pokedexClient.getPokemon(idOrNameB);
+        PokemonDTO a = pokedexClientService.getPokemon(idOrNameA);
+        PokemonDTO b = pokedexClientService.getPokemon(idOrNameB);
 
         if (a == null || b == null) {
             throw new IllegalArgumentException("Pokémon não encontrado em um dos parâmetros.");
@@ -51,7 +59,7 @@ public class ComparisonService {
         double typeScoreA = portion(aToB, bToA);
         double statsScoreA = portion(totalA, totalB);
 
-        double probA = 0.6 * typeScoreA + 0.4 * statsScoreA;
+        double probA = typeWeight * typeScoreA + statsWeight * statsScoreA;
         double probB = 1.0 - probA;
 
         String winner = probA >= probB ? a.getName() : b.getName();
@@ -82,6 +90,9 @@ public class ComparisonService {
         r.setProbabilityB(round2(probB));
         r.setRationale(rationale);
 
+        r.setTypeScoreA(round2(typeScoreA));
+        r.setStatsScoreA(round2(statsScoreA));
+
         res.setPokemonA(pvA);
         res.setPokemonB(pvB);
         res.setTypeBreakdown(tb);
@@ -109,6 +120,6 @@ public class ComparisonService {
 
     private List<String> normalizeTypes(List<String> types) {
         if (types == null) return List.of();
-        return types.stream().map(t -> t == null ? "" : t.toLowerCase(Locale.ROOT)).toList();
+        return types.stream().map(t -> t == null ? "" : t.toLowerCase(Locale.ROOT)).collect(Collectors.toList());
     }
 }

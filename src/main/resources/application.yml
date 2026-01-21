@@ -10,4 +10,12 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
 
 pokedex:
-  base-url: http://localhost:8081/api/pokemon
+  base-url: ${POKEDEX_BASE_URL:http://localhost:8081/api/v1/pokemon}
+
+pokeapi:
+  base-url: ${POKEAPI_BASE_URL:https://pokeapi.co/api/v2}
+
+comparison:
+  weights:
+    type: 0.6
+    stats: 0.4

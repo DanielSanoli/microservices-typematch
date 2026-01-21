@@ -1,5 +1,7 @@
 package br.com.typematch.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,8 +56,11 @@ public class ComparisonResultDTO {
     }
 
     public static class TypeBreakdown {
+        @JsonProperty("aToB")
         private double aToB;
+        @JsonProperty("bToA")
         private double bToA;
+
         private List<TypeDetail> detailsAtoB = new ArrayList<>();
         private List<TypeDetail> detailsBtoA = new ArrayList<>();
 
@@ -93,15 +98,22 @@ public class ComparisonResultDTO {
         private double probabilityB;
         private String rationale;
 
+        private double typeScoreA;
+        private double statsScoreA;
+
         public String getWinner() { return winner; }
         public double getProbabilityA() { return probabilityA; }
         public double getProbabilityB() { return probabilityB; }
         public String getRationale() { return rationale; }
+        public double getTypeScoreA() { return typeScoreA; }
+        public double getStatsScoreA() { return statsScoreA; }
 
         public void setWinner(String winner) { this.winner = winner; }
         public void setProbabilityA(double probabilityA) { this.probabilityA = probabilityA; }
         public void setProbabilityB(double probabilityB) { this.probabilityB = probabilityB; }
         public void setRationale(String rationale) { this.rationale = rationale; }
+        public void setTypeScoreA(double typeScoreA) { this.typeScoreA = typeScoreA; }
+        public void setStatsScoreA(double statsScoreA) { this.statsScoreA = statsScoreA; }
     }
 
     private PokemonView pokemonA;
